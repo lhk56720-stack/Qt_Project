@@ -7,6 +7,8 @@ FileSrvDlg::FileSrvDlg(QWidget *parent) :
     ui(new Ui::FileSrvDlg)
 {
     ui->setupUi(this);
+    this->setWindowTitle ("文件传输");
+    setWindowIcon (QIcon(":/icon/send.png"));
     fd=new QTcpServer(this);
     port=8388;
     connect(fd,&QTcpServer::newConnection,this,&FileSrvDlg::sendFile);

@@ -34,6 +34,8 @@ public:
     void InitUserInfo(QString name);
     //图标初始化
     void InitIcon();
+    //字体设置
+    void SetFont();
     //初始化UDP广播
     void InitUDP();
     //广播UDP消息

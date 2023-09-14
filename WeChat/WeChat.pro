@@ -19,6 +19,7 @@ ICON = :/icon/wechat.png
 
 SOURCES += \
     FileCntDlg.cpp \
+    FileSender.cpp \
     FileSrvDlg.cpp \
     Login.cpp \
     Manager.cpp \
@@ -28,6 +29,7 @@ SOURCES += \
 
 HEADERS += \
     FileCntDlg.h \
+    FileSender.h \
     FileSrvDlg.h \
     Login.h \
     Manager.h \

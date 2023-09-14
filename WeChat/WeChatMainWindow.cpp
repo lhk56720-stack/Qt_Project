@@ -11,76 +11,65 @@
 #include <QDateTime>
 #include <QColorDialog>
 #include <QShortcut>
+#include <QThread>
 
 WeChatMainWindow::WeChatMainWindow(QString name,QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::WeChatMainWindow)
 {
     ui->setupUi(this);
+/*
+***     进行一系列数据初始化
+*/
+//***********************************
     //获取用户名
     this->userName=name;
     //图片初始化
     InitIcon();
+    //设置字体
+    SetFont ();
     //初始化UDP广播
     InitUDP();
-    //InitUserInfo (userName);
-    //初始化上线信息
+//***********************************
+
+    //发送上线信号
     sendMsg (OnLine);
-    connect(ui->sendMsg_btn,&QPushButton::clicked,this,[=](){
-        sendMsg (ChatMsg);
-    });
-    // 创建一个回车键的快捷键，并连接到按钮的点击槽函数
-    // 创建 crtl+Enter 快捷键
-    QKeySequence ctrlEnterKey(Qt::CTRL + Qt::Key_Enter);
-    QShortcut* enterShortcut = new QShortcut(ctrlEnterKey, ui->sendMsg_btn);
-    QShortcut* returnShortcut = new QShortcut(Qt::CTRL + Qt::Key_Return, ui->sendMsg_btn);
-    connect(enterShortcut, &QShortcut::activated, ui->sendMsg_btn, &QPushButton::click);
-    connect(returnShortcut, &QShortcut::activated, ui->sendMsg_btn, &QPushButton::click);
-
-    QShortcut* escShortcut = new QShortcut(Qt::Key_Escape, ui->exit_btn); // 可以将 this 替换为你想要的父窗口或控件
-    connect(escShortcut, &QShortcut::activated, ui->exit_btn, &QPushButton::click);
-
-    //接受完消息处理消息
-    connect (fd,&QUdpSocket::readyRead,this,&WeChatMainWindow::recvMsg);
     //离线信号事件处理
     connect(this,&WeChatMainWindow::winclosed,this,[=](){
        qDebug()<<"接收信号处理离线事件"<<endl;
         sendMsg (OffLine);
     });
 
+
+    //消息发送点击按钮及消息传递事件处理
+    connect(ui->sendMsg_btn,&QPushButton::clicked,this,[=](){
+        sendMsg (ChatMsg);
+    });
+
+    //接受完消息处理消息
+    connect (fd,&QUdpSocket::readyRead,this,&WeChatMainWindow::recvMsg);
+
+
      myfsrv=new FileSrvDlg();
     //获取发送文件名
     connect(myfsrv,&FileSrvDlg::sendFileName,this,&WeChatMainWindow::getSfileName);
-
-
     //文件发送按钮点击事件
     connect(ui->sendfile_btn,&QPushButton::clicked,this,[=](){
         if(ui->user_table->selectedItems ().isEmpty ()){
             QMessageBox::warning (0,tr("选择好友"),tr("请先选择文件接收方"),QMessageBox::Ok);
             return;
         }
-
         recvName=ui->user_table->currentItem ()->text ();
         myfsrv->show ();
         connect(myfsrv,&FileSrvDlg::over,this,[=](){
             sendMsg (SfileName);
         });
     });
-
-
 }
 
 WeChatMainWindow::~WeChatMainWindow()
 {
     delete ui;
-}
-
-void WeChatMainWindow::InitUserInfo(QString name)
-{
-    ui->user_table->insertRow (0);
-    QTableWidgetItem* item=new QTableWidgetItem(QIcon(QString(":/userIcon/%1.jpg").arg (userName)),userName);
-    ui->user_table->setItem (0,0,item);
-
 }
 //图片初始化
 void WeChatMainWindow::InitIcon()
@@ -108,8 +97,36 @@ void WeChatMainWindow::InitIcon()
     ui->italic_btn->setCheckable (true);
     ui->underline_btn->setCheckable (true);
 
+    //初始化表
+    ui->user_table->setColumnCount (1);
+    ui->user_table->setHorizontalHeaderItem (0,new QTableWidgetItem("在线用户:"));
 
+    //初始化窗口用户信息
+    setWindowTitle (userName);
 
+    QString iconPath(tr(":/userIcon/%1.jpg").arg (userName));
+    QFile file(iconPath);
+    if(file.exists ()){
+        setWindowIcon (QIcon(iconPath));
+
+    }
+        else {
+        setWindowIcon (QIcon(":/icon/wechat.png"));
+    }
+
+    // 创建 crtl+Enter 快捷键
+    QKeySequence ctrlEnterKey(Qt::CTRL + Qt::Key_Enter);
+    QShortcut* enterShortcut = new QShortcut(ctrlEnterKey, ui->sendMsg_btn);
+    QShortcut* returnShortcut = new QShortcut(Qt::CTRL + Qt::Key_Return, ui->sendMsg_btn);
+    connect(enterShortcut, &QShortcut::activated, ui->sendMsg_btn, &QPushButton::click);
+    connect(returnShortcut, &QShortcut::activated, ui->sendMsg_btn, &QPushButton::click);
+    //创建一个Esc快捷键
+    QShortcut* escShortcut = new QShortcut(Qt::Key_Escape, ui->exit_btn);
+    connect(escShortcut, &QShortcut::activated, ui->exit_btn, &QPushButton::click);
+}
+
+void WeChatMainWindow::SetFont()
+{
     //初始化字体样式
     QFontDatabase fontDataBase;
     QStringList fontFamilies=fontDataBase.families ();
@@ -134,10 +151,6 @@ void WeChatMainWindow::InitIcon()
     connect (ui->fontSize,&QComboBox::currentTextChanged,this,[=](){
         ui->message_edit->setFontPointSize (ui->fontSize->currentText ().toInt ());
     });
-
-    //初始化表
-    ui->user_table->setColumnCount (1);
-    ui->user_table->setHorizontalHeaderItem (0,new QTableWidgetItem("在线用户:"));
 }
 //初始化UDP广播
 void WeChatMainWindow::InitUDP()
@@ -178,7 +191,7 @@ void WeChatMainWindow::sendMsg(ChatMsgType type)
     //消息处理完毕进行广播
     fd->writeDatagram (array,array.length (),QHostAddress::Broadcast,port);
 }
-
+//接收消息类型并处理
 void WeChatMainWindow::recvMsg()
 {
     QByteArray array;
@@ -218,49 +231,23 @@ void WeChatMainWindow::recvMsg()
     }
 }
 
-QString WeChatMainWindow::getMsg()
-{
-    QString msg=ui->message_edit->toPlainText ();
-    ui->message_edit->clear();
-    ui->message_edit->setFocus ();
-    return msg;
-}
-//获取本机IP
-QString WeChatMainWindow::
-getLocHostIp()
-{
-    QList<QHostAddress> addrlist=QNetworkInterface::allAddresses ();
-    for(QHostAddress addr:addrlist){
-        if(addr.protocol ()==QAbstractSocket::IPv4Protocol)
-            return addr.toString ();
-    }
-}
 
+
+//用户上线事件处理
 void WeChatMainWindow::onLine(QString name,QString time)
 {
     bool isExist=ui->user_table->findItems (name,Qt::MatchExactly).isEmpty ();
     if(isExist){
         ui->user_table->insertRow (0);
-        //初始化窗口用户信息
-        setWindowTitle (name);
-        QTableWidgetItem* item;
-        QString iconPath(tr(":/userIcon/%1.jpg").arg (name));
-        QFile file(iconPath);
-        if(file.exists ()){
-            setWindowIcon (QIcon(iconPath));
-            item=new QTableWidgetItem(QIcon(iconPath),name);
-        }
-            else {
-            setWindowIcon (QIcon(":/icon/wechat.png"));
-            item=new QTableWidgetItem(QIcon(QString(":/icon/wechat.png")),name);
-        }
+       QTableWidgetItem* item;
+       item=new QTableWidgetItem(QIcon(tr(":/userIcon/%1.jpg").arg (name)),name);
         ui->user_table->setItem (0,0,item);
         ui->dialog_browser->append (tr("%1 %2 上线!").arg (time).arg (name));
         ui->usernum_lbl->setText (QString("在线用户人数:%1").arg (ui->user_table->rowCount ()));
         sendMsg (OnLine);
     }
 }
-
+//用户下线事件处理
 void WeChatMainWindow::offLine(QString name, QString time)
 {
     bool isExist=ui->user_table->findItems (name,Qt::MatchExactly).isEmpty ();
@@ -293,6 +280,28 @@ void WeChatMainWindow::recvFileName(QString name, QString hostip, QString rmtnam
         }
     }
 }
+//获取文件名
+void WeChatMainWindow::getSfileName(QString fname)
+{
+    myFileName=fname;
+}
+//获取发的消息
+QString WeChatMainWindow::getMsg()
+{
+    QString msg=ui->message_edit->toPlainText ();
+    ui->message_edit->clear();
+    ui->message_edit->setFocus ();
+    return msg;
+}
+//获取本机IP
+QString WeChatMainWindow::getLocHostIp()
+{
+    QList<QHostAddress> addrlist=QNetworkInterface::allAddresses ();
+    for(QHostAddress addr:addrlist){
+        if(addr.protocol ()==QAbstractSocket::IPv4Protocol)
+            return addr.toString ();
+    }
+}
 //重写关闭窗口方法获取信号
 void WeChatMainWindow::closeEvent(QCloseEvent *event)
 {
@@ -300,6 +309,12 @@ void WeChatMainWindow::closeEvent(QCloseEvent *event)
     emit winclosed ();
     this->deleteLater ();
 }
+
+
+
+/*
+***   聊天窗口控件按钮功能实现
+*/
 
 //设置粗体
 void WeChatMainWindow::on_bold_btn_clicked(bool checked)
@@ -328,7 +343,7 @@ void WeChatMainWindow::on_underline_btn_clicked(bool checked)
         ui->message_edit->setFontUnderline (false);
     ui->message_edit->setFocus ();
 }
-
+//保存聊天记录
 void WeChatMainWindow::on_save_btn_clicked()
 {
     if(ui->dialog_browser->toPlainText ().isEmpty ()){
@@ -342,24 +357,18 @@ void WeChatMainWindow::on_save_btn_clicked()
     stream<<ui->dialog_browser->toPlainText ();
     file.close ();
 }
-
+//清除按钮
 void WeChatMainWindow::on_clear_btn_clicked()
 {
     ui->dialog_browser->clear ();
 }
-
+//退出系统
 void WeChatMainWindow::on_exit_btn_clicked()
 {
     this->close ();
     QMessageBox::information (this,"退出系统","您已成功退出本系统");
 }
-
-void WeChatMainWindow::getSfileName(QString fname)
-{
-    myFileName=fname;
-}
-
-
+//颜色选择
 void WeChatMainWindow::on_color_btn_clicked()
 {
     QColor color=QColorDialog::getColor (Qt::red,this,"颜色选择");

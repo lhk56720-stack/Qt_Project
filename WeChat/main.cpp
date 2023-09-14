@@ -1,4 +1,3 @@
-
 #include "Login.h"
 #include<Manager.h>
 #include <QApplication>

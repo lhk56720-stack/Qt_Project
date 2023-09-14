@@ -14,24 +14,26 @@ Login::Login(QWidget *parent) :
     ui(new Ui::Login)
 {
     ui->setupUi(this);
-
     setWindowIcon (QIcon(":/icon/wechat.png"));
     setWindowTitle ("微信");
-//    ui->passWord->setText ("123");
-//    static int i=0;
-//    if(i==0){
-//        ui->userName->setText ("hdm");
-//    }
-//    else if (i==1) {
-//        ui->userName->setText ("wxc");
-//    }
-//    else if(i==2){
-//        ui->userName->setText ("lzh");
-//    }
-//    else {
-//        ui->userName->clear ();
-//    }
-//    i++;
+    //测试代码
+#ifdef DEBUG
+    ui->passWord->setText ("123");
+    static int i=0;
+    if(i==0){
+        ui->userName->setText ("hdm");
+    }
+    else if (i==1) {
+        ui->userName->setText ("wxc");
+    }
+    else if(i==2){
+        ui->userName->setText ("lzh");
+    }
+    else {
+        ui->userName->clear ();
+    }
+    i++;
+#endif
 
     ui->wechat->setPixmap (QPixmap(":/icon/wechat.png").scaled (150,150));
     //登录按钮点击事件
