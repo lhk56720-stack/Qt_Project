@@ -15,6 +15,8 @@
 可直接使用的安装包weChat1.0-setup.exe
 以及全套源码WeChat
 
+提示：安装包一直是1.0版本，代码已更新
+
 #### 使用说明
 
 已注册账号可查看源码中的user.txt文件，可使用Enter/Esc快捷键，发送消息的快捷键为ctrl+Enter
