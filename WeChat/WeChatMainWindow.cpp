@@ -1,7 +1,6 @@
 #include "WeChatMainWindow.h"
 #include "ui_WeChatMainWindow.h"
 #include"Login.h"
-#include "FileSrvDlg.h"
 
 #include <QFontDatabase>
 #include <QMessageBox>

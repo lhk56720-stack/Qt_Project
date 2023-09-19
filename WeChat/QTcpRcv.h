@@ -23,7 +23,6 @@ public:
 
 
 private slots:
-    void on_btn_connect_clicked();
 
 private:
     Ui::QTcpRcv *ui;
