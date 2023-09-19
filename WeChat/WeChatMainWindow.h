@@ -1,14 +1,11 @@
 #ifndef WECHATMAINWINDOW_H
 #define WECHATMAINWINDOW_H
-
-#include "FileCntDlg.h"
-#include "FileSrvDlg.h"
 #include "Manager.h"
 #include <QMainWindow>
 #include<QUdpSocket>
 #include <QFileDiaLog>
-class FileSrvDlg;
-class FileCntDlg;
+#include "QTcpRcv.h"
+#include "QTcpSrv.h"
 namespace Ui {
 class WeChatMainWindow;
 }
@@ -24,7 +21,7 @@ public:
         ChatMsg,        //聊天内容
         OnLine,         //用户上线
         OffLine,        //用户离线
-        SfileName,      //要传输的文件名
+        SfilePath,      //要传输的文件名
         RefFile         //拒收文件
     };
 
@@ -70,7 +67,7 @@ private slots:
 
     void on_exit_btn_clicked();
 
-    void getSfileName(QString name);
+    void getSfilePat(QString filePath);
 
 
     void on_color_btn_clicked();
@@ -80,9 +77,13 @@ private:
     QString userName;
     QUdpSocket *fd;
     unsigned short port=8383;   //初始化端口号
-    QString myFileName;
-    FileSrvDlg* myfsrv;
+    QString myFilePath;
     QString recvName;
+
+    QTcpSrv *srv;
+    QTcpRcv *rcv;
+
+
 };
 
 #endif // WECHATMAINWINDOW_H

@@ -18,29 +18,27 @@ DEFINES += QT_DEPRECATED_WARNINGS
 ICON = :/icon/wechat.png
 
 SOURCES += \
-    FileCntDlg.cpp \
-    FileSender.cpp \
-    FileSrvDlg.cpp \
     Login.cpp \
     Manager.cpp \
+    QTcpRcv.cpp \
+    QTcpSrv.cpp \
     Register.cpp \
     WeChatMainWindow.cpp \
     main.cpp
 
 HEADERS += \
-    FileCntDlg.h \
-    FileSender.h \
-    FileSrvDlg.h \
     Login.h \
     Manager.h \
+    QTcpRcv.h \
+    QTcpSrv.h \
     Register.h \
     WeChatMainWindow.h
 
 FORMS += \
-    FileCntDlg.ui \
-    FileSrvDlg.ui \
     Login.ui \
     Manager.ui \
+    QTcpRcv.ui \
+    QTcpSrv.ui \
     Register.ui \
     WeChatMainWindow.ui
 

@@ -11,7 +11,6 @@
 #include <QDateTime>
 #include <QColorDialog>
 #include <QShortcut>
-#include <QThread>
 
 WeChatMainWindow::WeChatMainWindow(QString name,QWidget *parent) :
     QMainWindow(parent),
@@ -34,25 +33,22 @@ WeChatMainWindow::WeChatMainWindow(QString name,QWidget *parent) :
 
     //发送上线信号
     sendMsg (OnLine);
-    //离线信号事件处理
-    connect(this,&WeChatMainWindow::winclosed,this,[=](){
-       qDebug()<<"接收信号处理离线事件"<<endl;
-        sendMsg (OffLine);
-    });
-
-
     //消息发送点击按钮及消息传递事件处理
     connect(ui->sendMsg_btn,&QPushButton::clicked,this,[=](){
         sendMsg (ChatMsg);
     });
-
     //接受完消息处理消息
     connect (fd,&QUdpSocket::readyRead,this,&WeChatMainWindow::recvMsg);
 
+/**********************************文件发送*******************************************/
 
-     myfsrv=new FileSrvDlg();
-    //获取发送文件名
-    connect(myfsrv,&FileSrvDlg::sendFileName,this,&WeChatMainWindow::getSfileName);
+     srv=new QTcpSrv(this);
+    //获取发送文件路径
+    connect(srv,&QTcpSrv::sendFilePath ,this,&WeChatMainWindow::getSfilePat);
+
+    connect(srv,&QTcpSrv::showDiaLog,this,[=](){
+            sendMsg (SfilePath);
+    });
     //文件发送按钮点击事件
     connect(ui->sendfile_btn,&QPushButton::clicked,this,[=](){
         if(ui->user_table->selectedItems ().isEmpty ()){
@@ -60,10 +56,13 @@ WeChatMainWindow::WeChatMainWindow(QString name,QWidget *parent) :
             return;
         }
         recvName=ui->user_table->currentItem ()->text ();
-        myfsrv->show ();
-        connect(myfsrv,&FileSrvDlg::over,this,[=](){
-            sendMsg (SfileName);
-        });
+        srv->show ();
+    });
+/*******************************************文件**************************************/
+    //离线信号事件处理
+    connect(this,&WeChatMainWindow::winclosed,this,[=](){
+       qDebug()<<"接收信号处理离线事件"<<endl;
+        sendMsg (OffLine);
     });
 }
 
@@ -71,6 +70,43 @@ WeChatMainWindow::~WeChatMainWindow()
 {
     delete ui;
 }
+
+
+/**********************************文件操作*******************************************************/
+//判断是否接收文件
+void WeChatMainWindow::recvFileName(QString name, QString hostip, QString rmtname, QString filename)
+{
+    QFileInfo info(filename);
+    QString fileName=info.fileName ();
+    int fileSize=info.size ();
+    if(userName==rmtname){
+        int result=QMessageBox::information (this,"收到文件",tr("好友%1给您发送文件%2(%3),是否接收").arg (name).arg (fileName).arg (fileSize),QMessageBox::Yes,QMessageBox::No);
+        if(result==QMessageBox::Yes){
+           // QString fname=QFileDialog::getSaveFileName (this,"保存文件",filename);
+            qDebug()<<"文件名"+filename<<endl;
+            if(!filename.isEmpty ()){
+                //fcnt=new FileCntDlg(fname,this);
+                rcv=new QTcpRcv(this);
+                rcv->connectSrv ();
+                rcv->show ();
+                connect(rcv->cfd,&QTcpSocket::connected,srv,&QTcpSrv::sendHead);
+            }
+        }
+        else
+            sendMsg (RefFile);
+    }
+}
+/**********************************文件操作*******************************************************/
+//获取文件路径
+void WeChatMainWindow::getSfilePat(QString filePath)
+{
+    qDebug()<<"已接收到文件名"<<endl;
+    myFilePath=filePath;
+}
+
+
+
+
 //图片初始化
 void WeChatMainWindow::InitIcon()
 {
@@ -124,7 +160,7 @@ void WeChatMainWindow::InitIcon()
     QShortcut* escShortcut = new QShortcut(Qt::Key_Escape, ui->exit_btn);
     connect(escShortcut, &QShortcut::activated, ui->exit_btn, &QPushButton::click);
 }
-
+//设置字体
 void WeChatMainWindow::SetFont()
 {
     //初始化字体样式
@@ -181,8 +217,8 @@ void WeChatMainWindow::sendMsg(ChatMsgType type)
         case OffLine:
         write<<userName;
         break;
-        case SfileName:
-            write<<userName<<locHostIp<<recvName<<myFileName;
+        case SfilePath:
+            write<<userName<<locHostIp<<recvName<<myFilePath;
         break;
         case RefFile:
             write<<userName<<locHostIp<<recvName;
@@ -220,12 +256,13 @@ void WeChatMainWindow::recvMsg()
             read>>name;
             offLine (name,currentTime);
         break;
-        case SfileName:
+        case SfilePath:
             read>>name>>hostip>>rname>>fname;
             recvFileName (name,hostip,rname,fname);
         break;
         case RefFile:
             read>>name>>hostip>>rname;
+            if(userName==rname)
             QMessageBox::information (this,"文件发送","文件被拒收");
         break;
     }
@@ -259,32 +296,7 @@ void WeChatMainWindow::offLine(QString name, QString time)
     }
 
 }
-//判断是否接收文件
-void WeChatMainWindow::recvFileName(QString name, QString hostip, QString rmtname, QString filename)
-{
-    qDebug()<<QHostAddress(hostip).toString ();
-    if(userName==rmtname){
-        int result=QMessageBox::information (this,"收到文件",tr("好友%1给您发送文件%2,是否接收").arg (name).arg (filename),QMessageBox::Yes,QMessageBox::No);
-        if(result==QMessageBox::Yes){
-            QString fname=QFileDialog::getSaveFileName (this,"保存文件",filename);
-            qDebug()<<"文件名"+filename<<endl;
-            if(!fname.isEmpty ()){
-                FileCntDlg *fcnt=new FileCntDlg(this);
-                fcnt->getLocalPath (fname);
-                qDebug()<<fname<<endl;
-                fcnt->getSrcAddr (QHostAddress(hostip));
-                fcnt->recvFile ();
-            }
-            else
-                sendMsg (RefFile);
-        }
-    }
-}
-//获取文件名
-void WeChatMainWindow::getSfileName(QString fname)
-{
-    myFileName=fname;
-}
+
 //获取发的消息
 QString WeChatMainWindow::getMsg()
 {

@@ -17,7 +17,7 @@ Login::Login(QWidget *parent) :
     setWindowIcon (QIcon(":/icon/wechat.png"));
     setWindowTitle ("微信");
     //测试代码
-#ifdef DEBUG
+#if 1
     ui->passWord->setText ("123");
     static int i=0;
     if(i==0){
