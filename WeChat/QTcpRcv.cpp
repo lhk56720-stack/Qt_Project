@@ -14,7 +14,8 @@ QTcpRcv::QTcpRcv(QWidget *parent) :
     ishead=true;
     ui->progressBar->setValue (0);
 
-
+    connectSrv ();
+    show ();
 
     connect(cfd,&QTcpSocket::readyRead,this,[=](){
         //接收数据
@@ -22,8 +23,6 @@ QTcpRcv::QTcpRcv(QWidget *parent) :
          if(ishead)
          {        //接收头
              //解析头部信息并初始化
-             qDebug()<<"开始接收头部信息"<<endl;
-             qDebug()<<"头部信息："+QString(buf)<<endl;
              fileName=QString(buf).section ("##",0,0);
              fileSize=QString(buf).section ("##",1,1).toUInt ();
              recvSize=0;
@@ -36,9 +35,6 @@ QTcpRcv::QTcpRcv(QWidget *parent) :
                  cfd->close ();
                  return;
              }
-             //弹出对话框，显示接收文件的信息
-//             QString str=QString("接收的文件:[%1:%2kb]").arg (fileName).arg (fileSize/1024);
-//             QMessageBox::information (this,"文件信息",str);
              ishead=false;
 
              //设置进度条
@@ -81,7 +77,13 @@ void QTcpRcv::connectSrv()
 {
     QString ip=ui->lineEdit_ip->text ();
     unsigned short port=ui->lineEdit_port->text ().toInt ();
-    cfd->connectToHost (QHostAddress("127.0.0.1"),7373);
-    qDebug()<<"连接服务器成功"<<endl;
+    cfd->connectToHost (QHostAddress(ip),port);
+    qDebug()<<"尝试连接"<<endl;
 }
+// 重写窗口关闭事件，发射自定义信号
+void QTcpRcv::closeEvent(QCloseEvent *)
+{
+    emit rcvCloseEvent ();
+}
+
 

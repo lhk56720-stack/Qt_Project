@@ -18,16 +18,14 @@ public:
     explicit QTcpRcv(QWidget *parent = nullptr);
     ~QTcpRcv();
     void connectSrv();
-    QTcpSocket *cfd;
 
-
-
-private slots:
+protected:
+    void closeEvent(QCloseEvent *);
 
 private:
     Ui::QTcpRcv *ui;
 
-
+    QTcpSocket *cfd;
 
     QFile file; //文件对象
     QString fileName;   //文件名字
@@ -35,6 +33,8 @@ private:
     int recvSize;   //已接收文件大小
 
     bool ishead;    //判断是否为头
+signals:
+    void rcvCloseEvent();
 };
 
 #endif // QTCPRCV_H

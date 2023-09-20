@@ -3,7 +3,7 @@
 #include "Manager.h"
 #include <QMainWindow>
 #include<QUdpSocket>
-#include <QFileDiaLog>
+#include <QFileDialog>
 #include "QTcpRcv.h"
 #include "QTcpSrv.h"
 namespace Ui {
@@ -53,7 +53,7 @@ signals:
     void winclosed();
 protected:
     //重写关闭窗口方法获取信号
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *);
 private slots:
     void on_bold_btn_clicked(bool checked);
 
@@ -81,7 +81,6 @@ private:
     QString recvName;
 
     QTcpSrv *srv;
-    QTcpRcv *rcv;
 
 
 };

@@ -17,11 +17,11 @@ class QTcpSrv : public QDialog
     Q_OBJECT
 
 public:
-    explicit QTcpSrv(QWidget *parent = nullptr);
+    explicit QTcpSrv(QWidget *parent = nullptr,QFile *file=nullptr);
     ~QTcpSrv();
     void sendData();
     void sendHead();
-
+    void startListen();
 
 private slots:
     void on_pushButton_clicked();
@@ -30,11 +30,12 @@ private slots:
 
 private:
     Ui::QTcpSrv *ui;
-    QTcpServer *fd; //监听套接字
+
     QTcpSocket *cfd;    //通信套接字
+    QTcpServer *fd; //监听套接字
     unsigned short port;
 
-    QFile file; //文件对象
+    QFile *file; //文件对象
     QString fileName;   //文件名字
     int fileSize;   //文件大小
     int sendSize;   //已发送文件大小
