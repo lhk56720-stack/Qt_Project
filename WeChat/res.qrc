@@ -16,5 +16,6 @@
         <file>userIcon/new.jpg</file>
         <file>userIcon/wxc.jpg</file>
         <file>userIcon/zhh.jpg</file>
+        <file>icon/wechat.ico</file>
     </qresource>
 </RCC>

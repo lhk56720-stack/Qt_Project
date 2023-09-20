@@ -4,15 +4,17 @@
 #include <QHostAddress>
 #include <QMessageBox>
 
-QTcpRcv::QTcpRcv(QWidget *parent) :
+QTcpRcv::QTcpRcv(QWidget *parent,QString path) :
     QDialog (parent),
     ui(new Ui::QTcpRcv)
 {
     ui->setupUi(this);
 
+    this->setWindowTitle ("接收文件");
     cfd=new QTcpSocket(this);
     ishead=true;
     ui->progressBar->setValue (0);
+    filePath=path;
 
     connectSrv ();
     show ();
@@ -28,7 +30,7 @@ QTcpRcv::QTcpRcv(QWidget *parent) :
              recvSize=0;
              //打开文件
              qDebug()<<"fileName:"<<fileName<<endl;
-             file.setFileName (fileName);
+             file.setFileName (filePath);
              if(!file.open (QIODevice::WriteOnly)){
                  qDebug()<<"只写模式打开文件失败"<<endl;
                  cfd->disconnectFromHost ();

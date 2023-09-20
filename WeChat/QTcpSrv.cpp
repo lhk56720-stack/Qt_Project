@@ -10,6 +10,7 @@ QTcpSrv::QTcpSrv(QWidget *parent,QFile *file) :
     ui(new Ui::QTcpSrv)
 {
     ui->setupUi(this);
+    this->setWindowTitle ("发送文件");
     this->file=file;
     port=7373;
     fd=new QTcpServer(this);

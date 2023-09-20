@@ -15,7 +15,7 @@ class QTcpRcv : public QDialog
     Q_OBJECT
 
 public:
-    explicit QTcpRcv(QWidget *parent = nullptr);
+    explicit QTcpRcv(QWidget *parent = nullptr,QString path=nullptr);
     ~QTcpRcv();
     void connectSrv();
 
@@ -31,6 +31,7 @@ private:
     QString fileName;   //文件名字
     int fileSize;   //文件大小
     int recvSize;   //已接收文件大小
+    QString filePath;
 
     bool ishead;    //判断是否为头
 signals:

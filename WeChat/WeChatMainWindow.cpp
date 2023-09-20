@@ -227,7 +227,6 @@ void WeChatMainWindow::recvMsg()
         break;
         case RefFile:
             read>>name>>hostip>>rname;
-            qDebug()<<name<<"+++"<<userName+"++++"<<rname<<endl;
             if(userName==name)
             QMessageBox::information (this,"文件发送","文件被拒收");
         break;
@@ -275,13 +274,14 @@ void WeChatMainWindow::recvFileName(QString name, QString hostip, QString rmtnam
         int result=QMessageBox::information (this,"收到文件",tr("好友%1给您发送文件%2(%3),是否接收").arg (name).arg (fileName).arg (fileSize),QMessageBox::Yes,QMessageBox::No);
         if(result==QMessageBox::Yes){
             qDebug()<<"文件名"+filename<<endl;
+            QString filePath=QFileDialog::getSaveFileName (this,"保存文件",fileName);
             if(!filename.isEmpty ()){
 
                 QFile *file=new QFile(filename,this);
                 QTcpSrv *server=new QTcpSrv(this,file);
                 server->startListen ();
 
-                QTcpRcv *rcv=new QTcpRcv(this);
+                QTcpRcv *rcv=new QTcpRcv(this,filePath);
                 connect (rcv,&QTcpRcv::rcvCloseEvent,this,[=]{
                    //端口连接
                     qDebug()<<"断开连接"<<endl;
