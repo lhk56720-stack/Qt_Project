@@ -5,16 +5,38 @@
 #include <QMessageBox>
 #include <QTextStream>
 #include<QDebug>
-#include <QShortCut>
+#include <QShortcut>
 
 Register::Register(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Register)
 {
     ui->setupUi(this);
+    initUI();
+    connectUse();
+}
+
+Register::~Register()
+{
+    delete ui;
+}
+
+void Register::initUI()
+{
+    setWindowFlags(windowFlags() & ~Qt::WindowMaximizeButtonHint);  // 禁用最大化按钮
+    setFixedSize(width(), height());  // 设置固定的窗口大小，禁止调整窗口大小
+    //设置背景颜色
+    setStyleSheet("background-color: white;");
 
     setWindowTitle ("注册");
     setWindowIcon (QIcon(":/icon/wechat.png"));
+
+    ui->wechat_lbl->setPixmap (QPixmap(":/icon/wechat.png").scaled (150,150));
+    ui->wechat_lbl->setAlignment(Qt::AlignCenter);  // 将对齐方式设置为居中
+}
+
+void Register::connectUse()
+{
     //注册完成点击事件
     connect(ui->register_btn,&QPushButton::clicked,this,&Register::registerOver);
 
@@ -24,12 +46,6 @@ Register::Register(QWidget *parent) :
 
     QShortcut *ReturnKey=new QShortcut(Qt::Key_Return,ui->register_btn);
     connect(ReturnKey,&QShortcut::activated,ui->register_btn,&QPushButton::click);
-
-}
-
-Register::~Register()
-{
-    delete ui;
 }
 
 void Register::registerOver()
@@ -71,14 +87,4 @@ void Register::registerOver()
     QMessageBox::information(this, "注册", "注册成功!");
     registerFile.close();
     this->close();
-
-
-
-
-
-
-
-
-
-
 }

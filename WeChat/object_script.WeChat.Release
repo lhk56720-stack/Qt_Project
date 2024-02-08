@@ -1,0 +1,14 @@
+release/Login.o
+release/Manager.o
+release/QTcpRcv.o
+release/QTcpSrv.o
+release/Register.o
+release/WeChatMainWindow.o
+release/main.o
+release/qrc_res.o
+release/moc_Login.o
+release/moc_Manager.o
+release/moc_QTcpRcv.o
+release/moc_QTcpSrv.o
+release/moc_Register.o
+release/moc_WeChatMainWindow.o

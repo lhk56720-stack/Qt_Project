@@ -102,6 +102,8 @@ void WeChatMainWindow::InitIcon()
     //初始化表
     ui->user_table->setColumnCount (1);
     ui->user_table->setHorizontalHeaderItem (0,new QTableWidgetItem("在线用户:"));
+    ui->user_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);// 自适应水平大小
+    ui->user_table->setEditTriggers(QAbstractItemView::NoEditTriggers); //禁用表格的编辑功能
 
     //初始化窗口用户信息
     setWindowTitle (userName);
@@ -110,9 +112,8 @@ void WeChatMainWindow::InitIcon()
     QFile file(iconPath);
     if(file.exists ()){
         setWindowIcon (QIcon(iconPath));
-
     }
-        else {
+    else {
         setWindowIcon (QIcon(":/icon/wechat.png"));
     }
 
@@ -241,8 +242,15 @@ void WeChatMainWindow::onLine(QString name,QString time)
     bool isExist=ui->user_table->findItems (name,Qt::MatchExactly).isEmpty ();
     if(isExist){
         ui->user_table->insertRow (0);
-       QTableWidgetItem* item;
-       item=new QTableWidgetItem(QIcon(tr(":/userIcon/%1.jpg").arg (name)),name);
+        QTableWidgetItem* item;
+        QString iconPath(tr(":/userIcon/%1.jpg").arg (name));
+        QFile file(iconPath);
+        if(file.exists ()){
+            item=new QTableWidgetItem(QIcon(iconPath),name);
+        }
+        else {
+            item=new QTableWidgetItem(QIcon(tr(":/icon/wechat.png").arg (name)),name);
+        }
         ui->user_table->setItem (0,0,item);
         ui->dialog_browser->append (tr("%1 %2 上线!").arg (time).arg (name));
         ui->usernum_lbl->setText (QString("在线用户人数:%1").arg (ui->user_table->rowCount ()));

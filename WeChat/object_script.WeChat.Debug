@@ -1,0 +1,14 @@
+debug/Login.o
+debug/Manager.o
+debug/QTcpRcv.o
+debug/QTcpSrv.o
+debug/Register.o
+debug/WeChatMainWindow.o
+debug/main.o
+debug/qrc_res.o
+debug/moc_Login.o
+debug/moc_Manager.o
+debug/moc_QTcpRcv.o
+debug/moc_QTcpSrv.o
+debug/moc_Register.o
+debug/moc_WeChatMainWindow.o

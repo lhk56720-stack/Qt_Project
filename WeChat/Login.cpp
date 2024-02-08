@@ -10,14 +10,30 @@
 #include<QFileDialog>
 #include <QTextCodec>
 Login::Login(QWidget *parent) :
-    QDialog(parent),
+    QWidget(parent),
     ui(new Ui::Login)
 {
     ui->setupUi(this);
+    initUI();
+    connectUse();
+}
+
+Login::~Login()
+{
+    delete ui;
+}
+
+void Login::initUI()
+{
+    setWindowFlags(windowFlags() & ~Qt::WindowMaximizeButtonHint);  // 禁用最大化按钮
+    setFixedSize(width(), height());  // 设置固定的窗口大小，禁止调整窗口大小
     setWindowIcon (QIcon(":/icon/wechat.png"));
-    setWindowTitle ("微信");
+    setWindowTitle ("登录");
+    ui->wechat->setPixmap (QPixmap(":/icon/wechat.png").scaled (150,150));
+    //设置背景颜色
+    setStyleSheet("background-color: white;");
     //测试代码
-#if 1
+#if 0
     ui->passWord->setText ("123");
     static int i=0;
     if(i==0){
@@ -34,8 +50,10 @@ Login::Login(QWidget *parent) :
     }
     i++;
 #endif
+}
 
-    ui->wechat->setPixmap (QPixmap(":/icon/wechat.png").scaled (150,150));
+void Login::connectUse()
+{
     //登录按钮点击事件
     connect(ui->login_btn,&QPushButton::clicked,this,&Login::userLogin);
     //注册按钮点击事件
@@ -43,11 +61,6 @@ Login::Login(QWidget *parent) :
        Register *reg=new Register();
        reg->show ();
     });
-}
-
-Login::~Login()
-{
-    delete ui;
 }
 
 void Login::userLogin()

@@ -25,8 +25,6 @@ public:
         RefFile         //拒收文件
     };
 
-
-
     //初始化用户基本信息
     void InitUserInfo(QString name);
     //图标初始化
@@ -69,7 +67,6 @@ private slots:
 
     void getSfilePat(QString filePath);
 
-
     void on_color_btn_clicked();
 
 private:
@@ -79,10 +76,7 @@ private:
     unsigned short port=8383;   //初始化端口号
     QString myFilePath;
     QString recvName;
-
     QTcpSrv *srv;
-
-
 };
 
 #endif // WECHATMAINWINDOW_H

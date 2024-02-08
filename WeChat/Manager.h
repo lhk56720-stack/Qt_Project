@@ -16,6 +16,11 @@ class Manager : public QWidget
 public:
     explicit Manager(QWidget *parent = nullptr);
     ~Manager();
+private:
+    //初始化UI
+    void initUI();
+    //信号槽调用
+    void connectUse();
 
 private:
     Ui::Manager *ui;

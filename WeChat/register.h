@@ -14,6 +14,9 @@ class Register : public QWidget
 public:
     explicit Register(QWidget *parent = nullptr);
     ~Register();
+private:
+    void initUI();
+    void connectUse();
 private slots:
     void registerOver();
 private:
